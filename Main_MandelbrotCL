@@ -1,0 +1,58 @@
+package benjanyan.MandelbrotCL;
+
+import java.awt.Color;
+import java.awt.image.BufferedImage;
+import java.io.File;
+
+import javax.imageio.ImageIO;
+
+public class Main_MandelbrotCL {
+	final static int N =  8128;			//Size of Mandelbrot
+	final static int CUTOFF = 100 ; 
+	
+	public static void main(String [] args) throws Exception {
+
+		// Benchmark
+		MandelbrotCL mbcl = new MandelbrotCL(N, CUTOFF);
+		int noOfTests = 10;
+		long average = 0;
+		for (int i = 0; i < noOfTests; i++) {
+			long startTime = System.currentTimeMillis();
+			mbcl.execute(N);
+			System.out.println(System.currentTimeMillis() - startTime);
+			average += System.currentTimeMillis() - startTime;
+		}
+		
+			//Average test time
+		average = average / noOfTests;
+		System.out.println("Average: " + average + "ms");
+
+		
+		// Plot image
+		BufferedImage img = new BufferedImage(N, N,
+				BufferedImage.TYPE_INT_ARGB) ;
+
+		// Draw pixels
+
+		for (int i = 0 ; i < N ; i++) {
+			for (int j = 0 ; j < N ; j++) {
+
+				int k = mbcl.flatSet [(i * N) + j] ;
+
+				float level ;
+				if(k < CUTOFF) {
+					level = (float) k / CUTOFF ;
+				}
+				else {
+					level = 0 ;
+				}
+				Color c = new Color(level/2, level/2, level) ;  // Blueish
+				img.setRGB(i, j, c.getRGB()) ;
+			}
+		}
+
+		// Print file
+
+		ImageIO.write(img, "PNG", new File("Mandelbrot.png"));
+	}
+}
