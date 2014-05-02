@@ -1,0 +1,44 @@
+package benjanyan.MandelbrotCL;
+
+import com.amd.aparapi.Kernel;
+
+public class MandelbrotCL extends Kernel {
+
+	public int N;
+	public int CUTOFF ; 
+	public int [] flatSet;			//Aparapi doesn't support 2d arrays
+	
+	MandelbrotCL(int N, int CUTOFF) {
+		super();
+		this.N = N;
+		this.CUTOFF = CUTOFF;
+		flatSet = new int [N * N];
+		execute(N);					//Code is compiled so first time is slow and excluded from benchmark
+	}
+	
+	public void run() {
+		int i = getGlobalId();
+		int j = 0;
+		while (j < N) {
+			double cr = (4.0 * i - 2 * N) / N ;
+			double ci = (4.0 * j - 2 * N) / N ;
+
+			double zr = cr;
+			double zi = ci;
+
+			int k = 0 ;
+			while (k < CUTOFF && zr * zr + zi * zi < 4.0) {
+
+				double newr = cr + zr * zr - zi * zi ;
+				double newi = ci + 2 * zr * zi ;
+
+				zr = newr ;
+				zi = newi ;
+
+				k++ ;
+			}
+			flatSet[(i * N) + j] = k;
+			j++;
+		}
+	}
+}
